@@ -1,31 +1,61 @@
-from textblob import TextBlob
-from collections import Counter
+import argparse
 import re
-from nltk.corpus import stopwords
+from collections import Counter
+from pathlib import Path
+from typing import Dict, List, Set, Tuple
+
 import pandas as pd
+from textblob import TextBlob
+from nltk.corpus import stopwords
 
-def analyze_feedback(file_path):
-    # Load comments based on file type
-    if file_path.endswith('.txt'):
-        with open(file_path, 'r') as file:
-            comments = [line.strip() for line in file.readlines() if line.strip()]
-    elif file_path.endswith('.csv'):
-        df = pd.read_csv(file_path)
-        if 'comments' not in df.columns:
-            raise ValueError("CSV must have a 'comments' column")
-        comments = df['comments'].dropna().tolist()
-    else:
-        raise ValueError("File must be .txt or .csv")
+# A more comprehensive set of stop words for better keyword filtering.
+ADDITIONAL_STOP_WORDS: Set[str] = {'the', 'is', 'was', 'a', 'and', 'to', 'it'}
+STOP_WORDS: Set[str] = set(stopwords.words('english')).union(ADDITIONAL_STOP_WORDS)
 
-    # Process comments
+def load_comments_from_file(file_path: Path) -> List[str]:
+    """Loads comments from a .txt or .csv file."""
+    if file_path.suffix == '.txt':
+        try:
+            return [line.strip() for line in file_path.read_text(encoding='utf-8').splitlines() if line.strip()]
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Error: The file '{file_path}' was not found.")
+        except Exception as e:
+            raise IOError(f"Error reading text file: {e}")
+
+    elif file_path.suffix == '.csv':
+        try:
+            df = pd.read_csv(file_path)
+            if 'comments' not in df.columns:
+                raise ValueError("CSV file must have a 'comments' column.")
+            return df['comments'].dropna().astype(str).tolist()
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Error: The file '{file_path}' was not found.")
+        except Exception as e:
+            raise IOError(f"Error reading CSV file: {e}")
+
+    raise ValueError(f"Unsupported file type: '{file_path.suffix}'. Please use .txt or .csv.")
+
+
+def process_feedback(comments: List[str]) -> Tuple[Dict[str, str], List[Tuple[str, int]]]:
+    """
+    Analyzes a list of comments for sentiment and extracts top keywords.
+
+    Args:
+        comments: A list of strings, where each string is a feedback comment.
+
+    Returns:
+        A tuple containing:
+        - A dictionary with sentiment breakdown (e.g., {'Positive': '60%'}).
+        - A list of top 5 keywords and their counts.
+    """
     sentiments = []
     keywords = []
-    stop_words = set(stopwords.words('english')).union({'the', 'is', 'was', 'a', 'and', 'to', 'it'})
 
     for comment in comments:
-        # Sentiment analysis
         blob = TextBlob(comment)
         sentiment_score = blob.sentiment.polarity
+
+        # Classify sentiment based on polarity score
         if sentiment_score > 0.1:
             sentiments.append("Positive")
         elif sentiment_score < -0.1:
@@ -33,34 +63,62 @@ def analyze_feedback(file_path):
         else:
             sentiments.append("Neutral")
 
-        # Extract keywords
+        # Extract and filter keywords
         words = re.findall(r'\w+', comment.lower())
-        key_words = [word for word in words if word not in stop_words and len(word) > 3]
+        key_words = [word for word in words if word not in STOP_WORDS and len(word) > 3]
         keywords.extend(key_words)
 
-    # Summarize results
+    # Calculate sentiment summary
     sentiment_counts = Counter(sentiments)
-    total = sum(sentiment_counts.values())
-    sentiment_summary = {k: f"{(v/total)*100:.0f}%" for k, v in sentiment_counts.items()}
+    total_comments = len(comments)
+    if total_comments == 0:
+        return {}, []
 
+    sentiment_summary = {k: f"{(v / total_comments) * 100:.0f}%" for k, v in sentiment_counts.items()}
     top_keywords = Counter(keywords).most_common(5)
 
-    # Write to results file
-    with open("results.txt", "w") as result_file:
-        result_file.write("Sentiment Breakdown:\n")
-        for sentiment, percent in sentiment_summary.items():
-            result_file.write(f"{sentiment}: {percent}\n")
-        result_file.write("\nTop Themes:\n")
-        for word, count in top_keywords:
-            result_file.write(f"{word} ({count} mentions)\n")
+    return sentiment_summary, top_keywords
 
-    # Print for immediate feedback
-    with open("results.txt", "r") as result_file:
-        print(result_file.read())
+
+def write_results(output_path: Path, sentiment_summary: Dict[str, str], top_keywords: List[Tuple[str, int]]):
+    """Writes the analysis results to a file and prints them to the console."""
+    output_lines = []
+    output_lines.append("Sentiment Breakdown:")
+    for sentiment, percent in sentiment_summary.items():
+        output_lines.append(f"{sentiment}: {percent}")
+
+    output_lines.append("\nTop Themes:")
+    for word, count in top_keywords:
+        output_lines.append(f"{word} ({count} mentions)")
+
+    output_content = "\n".join(output_lines)
+
+    try:
+        output_path.write_text(output_content, encoding='utf-8')
+        print("Analysis complete. Results saved to:", output_path)
+        print("-" * 20)
+        print(output_content)
+    except IOError as e:
+        print(f"Error writing to output file '{output_path}': {e}")
+
+
+def main():
+    """Main function to run the feedback analysis from the command line."""
+    parser = argparse.ArgumentParser(description="Analyze customer feedback from .txt or .csv files.")
+    parser.add_argument("input_file", type=str, help="Path to the input feedback file (e.g., feedback.txt).")
+    parser.add_argument("-o", "--output", type=str, default="results.txt", help="Path to the output results file (default: results.txt).")
+    args = parser.parse_args()
+
+    input_path = Path(args.input_file)
+    output_path = Path(args.output)
+
+    try:
+        comments = load_comments_from_file(input_path)
+        sentiment_summary, top_keywords = process_feedback(comments)
+        write_results(output_path, sentiment_summary, top_keywords)
+    except (FileNotFoundError, ValueError, IOError) as e:
+        print(f"An error occurred: {e}")
+
 
 if __name__ == "__main__":
-    # Test with either file type
-    try:
-        analyze_feedback("feedback.txt")  # or "feedback.csv"
-    except Exception as e:
-        print(f"Error: {e}")
+    main()
