@@ -1,10 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { UploadCloud, FileText, CheckCircle, AlertCircle, RefreshCw } from "lucide-react";
+import {
+  UploadCloud,
+  FileText,
+  CheckCircle,
+  AlertCircle,
+  RefreshCw,
+} from "lucide-react";
 import Papa from "papaparse";
 import { analyzeFeedback, SentimentAnalysisResult } from "@/lib/analyzer";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 
@@ -23,7 +35,7 @@ import {
 
 const COLORS = {
   Positive: "#10b981", // Emerald 500
-  Neutral: "#6b7280",  // Gray 500
+  Neutral: "#6b7280", // Gray 500
   Negative: "#ef4444", // Red 500
 };
 
@@ -53,7 +65,9 @@ export default function Dashboard() {
           const data = results.data as any[];
           // Find the comments column (case-insensitive)
           const commentsCol = Object.keys(data[0] || {}).find(
-            (k) => k.toLowerCase().includes("comment") || k.toLowerCase().includes("feedback")
+            (k) =>
+              k.toLowerCase().includes("comment") ||
+              k.toLowerCase().includes("feedback"),
           );
 
           if (!commentsCol) {
@@ -102,17 +116,20 @@ export default function Dashboard() {
   const handleFiles = (files: File[]) => {
     setError(null);
     if (files.length === 0) return;
-    
+
     const targetFile = files[0];
-    
-    if (!targetFile.name.endsWith(".txt") && !targetFile.name.endsWith(".csv")) {
+
+    if (
+      !targetFile.name.endsWith(".txt") &&
+      !targetFile.name.endsWith(".csv")
+    ) {
       setError("Please upload a .txt or .csv file.");
       return;
     }
 
     setFile(targetFile);
     setIsAnalyzing(true);
-    
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target?.result as string;
@@ -132,23 +149,28 @@ export default function Dashboard() {
   };
 
   // Prepare chart data
-  const pieData = results ? [
-    { name: "Positive", value: results.sentimentCounts.Positive },
-    { name: "Neutral", value: results.sentimentCounts.Neutral },
-    { name: "Negative", value: results.sentimentCounts.Negative },
-  ].filter(d => d.value > 0) : [];
+  const pieData = results
+    ? [
+        { name: "Positive", value: results.sentimentCounts.Positive },
+        { name: "Neutral", value: results.sentimentCounts.Neutral },
+        { name: "Negative", value: results.sentimentCounts.Negative },
+      ].filter((d) => d.value > 0)
+    : [];
 
-  const barData = results ? results.topKeywords.map(([word, count]) => ({
-    name: word,
-    count: count
-  })) : [];
+  const barData = results
+    ? results.topKeywords.map(([word, count]) => ({
+        name: word,
+        count: count,
+      }))
+    : [];
 
   return (
     <div className="w-full max-w-6xl mx-auto space-y-8">
-      
       {/* Upload Zone */}
       {!results && !isAnalyzing && (
-        <Card className={`border-2 border-dashed transition-all duration-300 ${isDragging ? "border-primary bg-primary/5 scale-[1.02]" : "border-muted-foreground/25 hover:border-primary/50"}`}>
+        <Card
+          className={`border-2 border-dashed transition-all duration-300 rounded-3xl ${isDragging ? "border-primary bg-primary/5 scale-[1.02]" : "border-zinc-200 bg-white/50 hover:border-zinc-300 shadow-sm"}`}
+        >
           <CardContent className="p-12">
             <div
               className="flex flex-col items-center justify-center text-center space-y-6"
@@ -160,12 +182,22 @@ export default function Dashboard() {
                 <UploadCloud className="w-10 h-10 text-primary" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-2xl font-semibold tracking-tight">Upload Feedback Data</h3>
+                <h3 className="text-2xl font-semibold tracking-tight">
+                  Upload Feedback Data
+                </h3>
                 <p className="text-muted-foreground max-w-sm mx-auto">
-                  Drag and drop your <code className="bg-muted px-1.5 py-0.5 rounded text-sm">.txt</code> or <code className="bg-muted px-1.5 py-0.5 rounded text-sm">.csv</code> file here, or click to browse.
+                  Drag and drop your{" "}
+                  <code className="bg-muted px-1.5 py-0.5 rounded text-sm">
+                    .txt
+                  </code>{" "}
+                  or{" "}
+                  <code className="bg-muted px-1.5 py-0.5 rounded text-sm">
+                    .csv
+                  </code>{" "}
+                  file here, or click to browse.
                 </p>
               </div>
-              
+
               {error && (
                 <div className="flex items-center text-destructive bg-destructive/10 px-4 py-2 rounded-md font-medium">
                   <AlertCircle className="w-4 h-4 mr-2" />
@@ -193,8 +225,12 @@ export default function Dashboard() {
           <CardContent className="flex flex-col items-center justify-center py-24 space-y-6">
             <RefreshCw className="w-12 h-12 text-primary animate-spin" />
             <div className="space-y-2 text-center">
-              <h3 className="text-xl font-medium tracking-tight">Analyzing Sentiments...</h3>
-              <p className="text-muted-foreground">Reading comments and extracting themes.</p>
+              <h3 className="text-xl font-medium tracking-tight">
+                Analyzing Sentiments...
+              </h3>
+              <p className="text-muted-foreground">
+                Reading comments and extracting themes.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -205,27 +241,38 @@ export default function Dashboard() {
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-3xl font-bold tracking-tight">Analysis Overview</h2>
-              <div className="flex items-center mt-2 text-muted-foreground gap-2">
+              <h2 className="text-2xl font-semibold tracking-tight text-zinc-900">
+                Analysis Overview
+              </h2>
+              <div className="flex items-center mt-2 text-zinc-500 gap-2">
                 <FileText className="w-4 h-4" />
-                <span className="font-medium text-foreground">{file?.name}</span>
+                <span className="font-medium text-foreground">
+                  {file?.name}
+                </span>
                 <span className="text-muted-foreground/50 mx-1">•</span>
                 <span>{results.totalComments} comments analyzed</span>
               </div>
             </div>
-            <Button variant="outline" onClick={reset} className="rounded-full shadow-sm">
+            <Button
+              variant="outline"
+              onClick={reset}
+              className="rounded-full shadow-sm"
+            >
               <RefreshCw className="w-4 h-4 mr-2" />
               Analyze Another
             </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
             {/* Sentiment Summary Cards */}
-            <Card className="col-span-1 md:col-span-3 lg:col-span-1 bg-gradient-to-br from-background to-muted/30 border-muted/50 shadow-sm">
+            <Card className="col-span-1 md:col-span-3 lg:col-span-1 bg-white/70 backdrop-blur-md border border-zinc-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl">
               <CardHeader className="pb-2">
-                <CardTitle className="text-xl">Sentiment Breakdown</CardTitle>
-                <CardDescription>Overall feeling across all feedback</CardDescription>
+                <CardTitle className="text-lg font-medium text-zinc-800">
+                  Sentiment Breakdown
+                </CardTitle>
+                <CardDescription className="text-zinc-500">
+                  Overall feeling across all feedback
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6 pt-4">
                 <div className="space-y-2">
@@ -234,20 +281,30 @@ export default function Dashboard() {
                       <div className="w-2 h-2 rounded-full bg-emerald-500 mr-2" />
                       Positive
                     </span>
-                    <span className="font-bold text-2xl">{results.sentimentSummary.Positive || "0%"}</span>
+                    <span className="font-bold text-2xl">
+                      {results.sentimentSummary.Positive || "0%"}
+                    </span>
                   </div>
-                  <Progress value={parseInt(results.sentimentSummary.Positive || "0")} className="h-2 bg-emerald-100 dark:bg-emerald-950 [&>div]:bg-emerald-500" />
+                  <Progress
+                    value={parseInt(results.sentimentSummary.Positive || "0")}
+                    className="h-2 bg-emerald-100 dark:bg-emerald-950 [&>div]:bg-emerald-500"
+                  />
                 </div>
-                
+
                 <div className="space-y-2">
                   <div className="flex justify-between items-end">
                     <span className="font-medium text-gray-600 dark:text-gray-400 flex items-center">
                       <div className="w-2 h-2 rounded-full bg-gray-400 mr-2" />
                       Neutral
                     </span>
-                    <span className="font-bold text-2xl">{results.sentimentSummary.Neutral || "0%"}</span>
+                    <span className="font-bold text-2xl">
+                      {results.sentimentSummary.Neutral || "0%"}
+                    </span>
                   </div>
-                  <Progress value={parseInt(results.sentimentSummary.Neutral || "0")} className="h-2 bg-gray-100 dark:bg-gray-800 [&>div]:bg-gray-400" />
+                  <Progress
+                    value={parseInt(results.sentimentSummary.Neutral || "0")}
+                    className="h-2 bg-gray-100 dark:bg-gray-800 [&>div]:bg-gray-400"
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -256,17 +313,24 @@ export default function Dashboard() {
                       <div className="w-2 h-2 rounded-full bg-red-500 mr-2" />
                       Negative
                     </span>
-                    <span className="font-bold text-2xl">{results.sentimentSummary.Negative || "0%"}</span>
+                    <span className="font-bold text-2xl">
+                      {results.sentimentSummary.Negative || "0%"}
+                    </span>
                   </div>
-                  <Progress value={parseInt(results.sentimentSummary.Negative || "0")} className="h-2 bg-red-100 dark:bg-red-950 [&>div]:bg-red-500" />
+                  <Progress
+                    value={parseInt(results.sentimentSummary.Negative || "0")}
+                    className="h-2 bg-red-100 dark:bg-red-950 [&>div]:bg-red-500"
+                  />
                 </div>
               </CardContent>
             </Card>
 
             {/* Visual Charts */}
-            <Card className="col-span-1 md:col-span-2 shadow-sm border-muted/50">
-               <CardHeader className="pb-2">
-                <CardTitle className="text-xl">Sentiment Distribution</CardTitle>
+            <Card className="col-span-1 md:col-span-2 bg-white/70 backdrop-blur-md border border-zinc-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-medium text-zinc-800">
+                  Sentiment Distribution
+                </CardTitle>
               </CardHeader>
               <CardContent className="h-[280px] w-full pt-4">
                 <ResponsiveContainer width="100%" height="100%">
@@ -281,12 +345,19 @@ export default function Dashboard() {
                       dataKey="value"
                     >
                       {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS]} />
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[entry.name as keyof typeof COLORS]}
+                        />
                       ))}
                     </Pie>
-                    <Tooltip 
-                      formatter={(value: any) => [`${value} Comments`, 'Count']}
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    <Tooltip
+                      formatter={(value: any) => [`${value} Comments`, "Count"]}
+                      contentStyle={{
+                        borderRadius: "8px",
+                        border: "none",
+                        boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                      }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -294,33 +365,48 @@ export default function Dashboard() {
             </Card>
 
             {/* Top Themes Bar Chart */}
-            <Card className="col-span-1 md:col-span-3 shadow-sm border-muted/50">
+            <Card className="col-span-1 md:col-span-3 bg-white/70 backdrop-blur-md border border-zinc-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl">
               <CardHeader className="pb-2">
-                <CardTitle className="text-xl">Top Themes</CardTitle>
-                <CardDescription>Most frequently mentioned keywords</CardDescription>
+                <CardTitle className="text-lg font-medium text-zinc-800">
+                  Top Themes
+                </CardTitle>
+                <CardDescription className="text-zinc-500">
+                  Most frequently mentioned keywords
+                </CardDescription>
               </CardHeader>
               <CardContent className="h-[350px] w-full pt-6">
-                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={barData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <XAxis 
-                      dataKey="name" 
-                      tick={{ fill: 'currentColor', fontSize: 12 }}
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={barData}
+                    margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                  >
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fill: "currentColor", fontSize: 12 }}
                       axisLine={false}
                       tickLine={false}
                       dy={10}
                     />
-                    <YAxis 
-                      tick={{ fill: 'currentColor', fontSize: 12, opacity: 0.5 }}
+                    <YAxis
+                      tick={{
+                        fill: "currentColor",
+                        fontSize: 12,
+                        opacity: 0.5,
+                      }}
                       axisLine={false}
                       tickLine={false}
                     />
                     <Tooltip
-                      cursor={{ fill: 'var(--muted)', opacity: 0.4 }}
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      cursor={{ fill: "var(--muted)", opacity: 0.4 }}
+                      contentStyle={{
+                        borderRadius: "8px",
+                        border: "none",
+                        boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                      }}
                     />
-                    <Bar 
-                      dataKey="count" 
-                      fill="var(--primary)" 
+                    <Bar
+                      dataKey="count"
+                      fill="var(--primary)"
                       radius={[4, 4, 0, 0]}
                       barSize={40}
                     />
@@ -328,11 +414,9 @@ export default function Dashboard() {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
-
           </div>
         </div>
       )}
-
     </div>
   );
 }
