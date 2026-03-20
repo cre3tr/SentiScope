@@ -168,9 +168,7 @@ export default function Dashboard() {
     <div className="w-full max-w-6xl mx-auto space-y-8">
       {/* Upload Zone */}
       {!results && !isAnalyzing && (
-        <Card
-          className={`border-2 border-dashed transition-all duration-300 rounded-3xl ${isDragging ? "border-primary bg-primary/5 scale-[1.02]" : "border-zinc-200 bg-white/50 hover:border-zinc-300 shadow-sm"}`}
-        >
+        <Card className={`border-2 border-dashed transition-all duration-300 rounded-3xl ${isDragging ? "border-primary bg-primary/5 scale-[1.02] dark:bg-primary/10" : "border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 hover:border-zinc-300 dark:hover:border-zinc-700 shadow-sm"}`}>
           <CardContent className="p-12">
             <div
               className="flex flex-col items-center justify-center text-center space-y-6"
@@ -182,16 +180,16 @@ export default function Dashboard() {
                 <UploadCloud className="w-10 h-10 text-primary" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-2xl font-semibold tracking-tight">
+                <h3 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
                   Upload Feedback Data
                 </h3>
-                <p className="text-muted-foreground max-w-sm mx-auto">
+                <p className="text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">
                   Drag and drop your{" "}
-                  <code className="bg-muted px-1.5 py-0.5 rounded text-sm">
+                  <code className="bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded text-sm text-zinc-800 dark:text-zinc-200">
                     .txt
                   </code>{" "}
                   or{" "}
-                  <code className="bg-muted px-1.5 py-0.5 rounded text-sm">
+                  <code className="bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded text-sm text-zinc-800 dark:text-zinc-200">
                     .csv
                   </code>{" "}
                   file here, or click to browse.
@@ -241,12 +239,12 @@ export default function Dashboard() {
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-semibold tracking-tight text-zinc-900">
+              <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
                 Analysis Overview
               </h2>
-              <div className="flex items-center mt-2 text-zinc-500 gap-2">
+              <div className="flex items-center mt-2 text-zinc-500 dark:text-zinc-400 gap-2">
                 <FileText className="w-4 h-4" />
-                <span className="font-medium text-foreground">
+                <span className="font-medium text-zinc-900 dark:text-zinc-50">
                   {file?.name}
                 </span>
                 <span className="text-muted-foreground/50 mx-1">•</span>
@@ -265,12 +263,12 @@ export default function Dashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Sentiment Summary Cards */}
-            <Card className="col-span-1 md:col-span-3 lg:col-span-1 bg-white/70 backdrop-blur-md border border-zinc-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl">
+            <Card className="col-span-1 md:col-span-3 lg:col-span-1 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md border border-zinc-200/60 dark:border-zinc-800/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-2xl transition-colors duration-500">
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-medium text-zinc-800">
+                <CardTitle className="text-lg font-medium text-zinc-800 dark:text-zinc-100">
                   Sentiment Breakdown
                 </CardTitle>
-                <CardDescription className="text-zinc-500">
+                <CardDescription className="text-zinc-500 dark:text-zinc-400">
                   Overall feeling across all feedback
                 </CardDescription>
               </CardHeader>
@@ -326,9 +324,9 @@ export default function Dashboard() {
             </Card>
 
             {/* Visual Charts */}
-            <Card className="col-span-1 md:col-span-2 bg-white/70 backdrop-blur-md border border-zinc-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl">
+            <Card className="col-span-1 md:col-span-2 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md border border-zinc-200/60 dark:border-zinc-800/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-2xl transition-colors duration-500">
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-medium text-zinc-800">
+                <CardTitle className="text-lg font-medium text-zinc-800 dark:text-zinc-100">
                   Sentiment Distribution
                 </CardTitle>
               </CardHeader>
@@ -365,12 +363,12 @@ export default function Dashboard() {
             </Card>
 
             {/* Top Themes Bar Chart */}
-            <Card className="col-span-1 md:col-span-3 bg-white/70 backdrop-blur-md border border-zinc-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl">
+            <Card className="col-span-1 md:col-span-3 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md border border-zinc-200/60 dark:border-zinc-800/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-2xl transition-colors duration-500">
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-medium text-zinc-800">
+                <CardTitle className="text-lg font-medium text-zinc-800 dark:text-zinc-100">
                   Top Themes
                 </CardTitle>
-                <CardDescription className="text-zinc-500">
+                <CardDescription className="text-zinc-500 dark:text-zinc-400">
                   Most frequently mentioned keywords
                 </CardDescription>
               </CardHeader>
