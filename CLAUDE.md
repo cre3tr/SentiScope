@@ -199,6 +199,35 @@ under 105 lines).
    back to `^10` on a future dependency PR without first checking whether
    `eslint-plugin-react` (or whatever `eslint-config-next` bundles by then)
    has shipped ESLint 10 support.
+7. **`shadcn` lives in `devDependencies`, not `dependencies` — keep it
+   there.** It's the shadcn/ui CLI (`npx shadcn add button`), never imported
+   anywhere in `src/` (confirmed by grep — zero hits for `from "shadcn"` or
+   anything under it). But `shadcn`'s own dependency,
+   `@modelcontextprotocol/sdk`, bundles a full **Hono + Express server**
+   (`hono`, `@hono/node-server`, `express`, `body-parser`, `qs`,
+   `ip-address`, `path-to-regexp`). While `shadcn` sat in `dependencies`,
+   GitHub's dependency graph scanned that entire bundled server as
+   production-runtime code and reported it in Dependabot alerts — it
+   accounted for roughly two-thirds of a 64-row alert list surfaced
+   2026-08-19, none of it real: nothing in that subtree ever runs in the
+   deployed app. Moving `shadcn` to `devDependencies` doesn't remove any of
+   it (Vercel has no `vercel.json` here, so it builds with default
+   zero-config `npm install`, which always installs devDependencies) — it
+   only fixes the scope GitHub reports. If a future dependency bump moves
+   `shadcn` back to `dependencies` (e.g. an auto-generated Dependabot PR that
+   doesn't know the history), move it back.
+8. **`sharp` is pinned via a top-level `"overrides"` entry
+   (`>=0.35.0`), not because the app uses it.** It arrives as a genuine
+   `dependencies`-scope transitive of `next` itself (Next.js's optional
+   image-optimization backend), and the version `next@16.2.12` resolves on
+   its own (`0.34.5`) is vulnerable (`CVE-2026-33327` and siblings, inherited
+   from `libvips`). But this app never calls `next/image` anywhere (`grep
+   -rn "next/image" src/ next.config.ts` → zero hits), so the vulnerable code
+   path is currently dead. The override exists as insurance against a future
+   `next/image` addition landing on a still-vulnerable resolved version — if
+   `npm ls sharp` ever shows `<0.35.0` again, check whether the override got
+   dropped during a dependency bump rather than assuming Next fixed it
+   upstream.
 
 ## Before You Start
 
