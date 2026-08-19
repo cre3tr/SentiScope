@@ -32,20 +32,21 @@ prototype artifact, not as source you need to keep in sync with the app.
 
 ## Stack (exact versions from package.json)
 
-- Next.js **16.1.6** (App Router, Turbopack build)
-- React **19.2.3** / React DOM 19.2.3
+- Next.js **16.2.12** (App Router, Turbopack build)
+- React **19.2.8** / React DOM 19.2.8
 - TypeScript **^6.0.3** (`strict: true`)
 - Tailwind CSS **^4** via `@tailwindcss/postcss`
 - shadcn/ui (`components.json`, style `base-nova`, baseColor `neutral`) on
-  top of `@base-ui/react` **^1.3.0** primitives, `class-variance-authority`,
+  top of `@base-ui/react` **^1.6.0** primitives, `class-variance-authority`,
   `tailwind-merge`, `clsx`
 - `sentiment` ^5.0.2 — sentiment scoring engine used by `src/lib/analyzer.ts`
-- `papaparse` ^5.5.3 — CSV parsing in the browser
-- `recharts` ^3.8.0 — Pie/Bar charts
+- `papaparse` ^5.5.4 — CSV parsing in the browser
+- `recharts` ^3.10.1 — Pie/Bar charts
 - `next-themes` ^0.4.6 — light/dark mode
 - `lucide-react` ^1.11.0 — icons
-- ESLint **^10.2.1** with `eslint-config-next` 16.1.6 (flat config,
-  `eslint.config.mjs`)
+- ESLint **^9.7.0** with `eslint-config-next` 16.2.12 (flat config,
+  `eslint.config.mjs`). **Pinned below 10 deliberately** — see the gotcha
+  below.
 
 package name in `package.json` is `"web"` — this is a monorepo-style leftover
 from scaffolding, not a second package; there is only one app here.
@@ -76,8 +77,11 @@ from scaffolding, not a second package; there is only one app here.
   earlier (Mar 16) successful build plus new `diagnostics/`/`trace` files
   from this failed attempt — do not treat the presence of `.next/` as proof
   the current source builds.
-- `npm run lint` (`eslint`, flat config) — **VERIFIED, ran, exit code 1.**
-  2 errors + 1 warning, all in `src/components/dashboard/Dashboard.tsx`:
+- `npm run lint` (`eslint`, flat config) — **VERIFIED, ran, exit code 1**
+  (re-confirmed 2026-08-19 after the Next.js 16.2.12 / React 19.2.8
+  safe-updates bump — see the gotcha below on why ESLint stayed pinned to
+  9.x through that bump). 2 errors + 1 warning, all in
+  `src/components/dashboard/Dashboard.tsx`:
   - line 7: `'CheckCircle'` imported from `lucide-react` but never used
     (`@typescript-eslint/no-unused-vars`)
   - line 65: `Unexpected any` — `const data = results.data as any[];` inside
@@ -177,6 +181,24 @@ under 105 lines).
    (unused `CheckCircle` import) live in `Dashboard.tsx` — `npm run lint`
    currently exits 1. Don't assume a red lint run means your own change
    broke something; check whether it's one of these three first.
+6. **`eslint-plugin-react` does not support ESLint 10, at any version
+   published as of 2026-08-19 (latest is 7.37.5, peer range caps at
+   `^9.7`).** `eslint-config-next` bundles its own nested copy of
+   `eslint-plugin-react`, so this holds regardless of which
+   `eslint-config-next` version is installed — checked directly against
+   `eslint-config-next@16.3.1` (latest stable) and it still bundles
+   `eslint-plugin-react@^7.37.0`. Before 2026-08-19, `package.json` declared
+   `"eslint": "^10.2.1"`, which floated to whatever ESLint 10.x was newest —
+   this silently broke `npm run lint` (hard crash, `TypeError:
+   contextOrFilename.getFilename is not a function`, before any file gets
+   linted) sometime after this doc's original version-verification pass,
+   with no source change and no dependency bump on this repo's side; ESLint
+   10 itself simply shipped a later patch that removed the legacy
+   `context.getFilename()` API `eslint-plugin-react`'s old version-detection
+   code still calls. Fixed by pinning `"eslint": "^9.7.0"` — do not bump it
+   back to `^10` on a future dependency PR without first checking whether
+   `eslint-plugin-react` (or whatever `eslint-config-next` bundles by then)
+   has shipped ESLint 10 support.
 
 ## Before You Start
 
