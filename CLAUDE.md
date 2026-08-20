@@ -228,6 +228,19 @@ under 105 lines).
    `npm ls sharp` ever shows `<0.35.0` again, check whether the override got
    dropped during a dependency bump rather than assuming Next fixed it
    upstream.
+9. **`nanoid` and `postcss` are also pinned via `"overrides"` — both are
+   genuine `dependencies`-scope transitives of `next` itself, not of the
+   already-handled `shadcn`/dev tree.** `next@16.2.12` bundles its own
+   `postcss@8.4.31`, which pulls `nanoid@3.3.17` — both vulnerable
+   (`CVE-2026-67213` for nanoid, several CVEs up to `CVE-2026-69153` for
+   postcss). GitHub's nanoid advisory is easy to misread: it lists two
+   separate `vulnerable_version_range` entries (`>=4.0.0,<5.1.6` and
+   `<3.3.18`), and reading only the first one makes an installed `3.3.17`
+   look out-of-range and safe when it is actually caught by the second.
+   Fixed via `"overrides": { "nanoid": ">=3.3.18", "postcss": ">=8.5.23" }`
+   — confirmed with `npm ls nanoid postcss` (resolves to `6.0.1`/`8.5.26`)
+   and `npm audit --omit=dev` (0 vulnerabilities). If either regresses below
+   its threshold on a future bump, check the overrides block first.
 
 ## Before You Start
 
