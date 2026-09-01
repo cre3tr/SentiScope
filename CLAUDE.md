@@ -199,6 +199,17 @@ under 105 lines).
    back to `^10` on a future dependency PR without first checking whether
    `eslint-plugin-react` (or whatever `eslint-config-next` bundles by then)
    has shipped ESLint 10 support.
+   **Re-confirmed 2026-09-01: still broken.** Dependabot PR #3
+   (`eslint` `^9.7.0` → `^10.9.1`) reproduced this exact crash — same
+   `TypeError: contextOrFilename.getFilename is not a function`, same
+   `react/display-name` rule, same call chain through
+   `eslint-config-next/node_modules/eslint-plugin-react/lib/util/version.js`
+   — even with `eslint-config-next` at 16.3.3 (current at that date) still
+   bundling `eslint-plugin-react@7.37.5`, whose own declared peer range is
+   `"^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8 || ^9" ` /
+   `"...|| ^9.7"` — `npm ls eslint` flags the whole tree `invalid` against
+   `eslint@10.9.1`. **Do not merge that PR** (or any future eslint-10 bump)
+   until re-checking whether a newer `eslint-plugin-react` has shipped.
 7. **`shadcn` lives in `devDependencies`, not `dependencies` — keep it
    there.** It's the shadcn/ui CLI (`npx shadcn add button`), never imported
    anywhere in `src/` (confirmed by grep — zero hits for `from "shadcn"` or
