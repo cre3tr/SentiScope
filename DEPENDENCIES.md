@@ -3,6 +3,29 @@
 Decisions only: pins, overrides, deferrals, majors. Routine patch/minor bumps
 are recorded by their commit messages.
 
+## DEP-2: eslint stays on 9 — blocked by eslint-config-next's nested eslint-plugin-react — 2026-10-01
+
+**Context:** Dependabot PR #6 (eslint 9.39.5 → 10.11.0) had a **green**
+Vercel preview, but `next build` never runs lint. Run under 10.11.0,
+`npx eslint .` crashes and exits 2:
+`TypeError: Error while loading rule 'react/display-name':
+contextOrFilename.getFilename is not a function`.
+The crash comes from `eslint-config-next@16.3.6` → nested
+`eslint-plugin-react@7.37.5`, the latest release. That plugin peers
+`eslint ≤ ^9.7` and calls `context.getFilename()`, which eslint 10 removed.
+It's the same blocker as Huduma-Q's DEP-4. There it surfaces as an
+install-time ERESOLVE, because the plugin is a direct dependency. Here it
+surfaces only when lint runs.
+**Decision:** Stay on eslint 9.39.5 (install reverted). A scoped Dependabot
+`ignore` holds eslint `>=10.0.0`. PR #6 is closed.
+**Recheck trigger:** an `eslint-config-next` release whose nested
+`eslint-plugin-react` supports eslint 10. Check it by running `npx eslint .`
+under eslint 10. **A green preview is not the check.**
+**Verified on:** main — see the commit adding this entry. Lint is unchanged on
+eslint 9 (3 pre-existing problems).
+**Confidence:** HIGH — the crash was reproduced, and the stack trace names the
+nested plugin.
+
 ## DEP-1: @types/node — 2026-10-01
 
 **Context:** The manifest declared `^25.6.0` (25.9.5 installed), and Dependabot

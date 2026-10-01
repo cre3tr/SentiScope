@@ -12,5 +12,9 @@ updates:
       # Types track the Vercel runtime (Node 24.x), not npm latest. See DEPENDENCIES.md DEP-1.
       - dependency-name: "@types/node"
         versions: [">=25.0.0"]
+      # eslint 10 crashes lint: eslint-config-next's nested eslint-plugin-react 7.37.5
+      # calls context.getFilename(), which eslint 10 removed. See DEPENDENCIES.md DEP-2.
+      - dependency-name: "eslint"
+        versions: [">=10.0.0"]
     commit-message:
       prefix: "chore(deps)"
