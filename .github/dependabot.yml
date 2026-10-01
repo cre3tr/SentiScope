@@ -8,5 +8,9 @@ updates:
     groups:
       safe-updates:
         update-types: ["patch", "minor"]
+    ignore:
+      # Types track the Vercel runtime (Node 24.x), not npm latest. See DEPENDENCIES.md DEP-1.
+      - dependency-name: "@types/node"
+        versions: [">=25.0.0"]
     commit-message:
       prefix: "chore(deps)"
