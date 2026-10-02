@@ -27,7 +27,6 @@ export interface SentimentAnalysisResult {
 
 export function analyzeFeedback(comments: string[]): SentimentAnalysisResult {
   const sentimentAnalyzer = new Sentiment();
-  const sentiments: string[] = [];
   const keywordCounts: Record<string, number> = {};
   
   const sentimentCounts = {
@@ -55,13 +54,10 @@ export function analyzeFeedback(comments: string[]): SentimentAnalysisResult {
     // textblob polarity goes from -1 to 1. sentiment package score is an integer. 
     // comparative is a float that normalises score based on token count
     if (result.comparative > 0.05) {
-      sentiments.push("Positive");
       sentimentCounts.Positive++;
     } else if (result.comparative < -0.05) {
-      sentiments.push("Negative");
       sentimentCounts.Negative++;
     } else {
-      sentiments.push("Neutral");
       sentimentCounts.Neutral++;
     }
 
