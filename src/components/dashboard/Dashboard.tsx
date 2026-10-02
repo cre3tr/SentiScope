@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   UploadCloud,
   FileText,
-  CheckCircle,
   AlertCircle,
   RefreshCw,
 } from "lucide-react";
