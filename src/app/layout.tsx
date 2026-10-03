@@ -1,15 +1,10 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
-  subsets: ["latin"],
-});
-
-const jbMono = JetBrains_Mono({
-  variable: "--font-mono",
   subsets: ["latin"],
 });
 
@@ -26,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${jakarta.variable} ${jbMono.variable} font-sans antialiased bg-[#fafafa] dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 transition-colors duration-300`}
+        className={`${jakarta.variable} font-sans antialiased bg-[#fafafa] dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 transition-colors duration-300`}
       >
         <ThemeProvider
           attribute="class"
