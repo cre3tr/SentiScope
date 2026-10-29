@@ -57,11 +57,11 @@ export default function Dashboard() {
 
   const processFileText = (text: string, filename: string) => {
     if (filename.endsWith(".csv")) {
-      Papa.parse(text, {
+      Papa.parse<Record<string, string>>(text, {
         header: true,
         skipEmptyLines: true,
         complete: (results) => {
-          const data = results.data as any[];
+          const data = results.data;
           // Find the comments column (case-insensitive)
           const commentsCol = Object.keys(data[0] || {}).find(
             (k) =>
@@ -349,7 +349,7 @@ export default function Dashboard() {
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(value: any) => [`${value} Comments`, "Count"]}
+                      formatter={(value) => [`${value} Comments`, "Count"]}
                       contentStyle={{
                         borderRadius: "8px",
                         border: "none",

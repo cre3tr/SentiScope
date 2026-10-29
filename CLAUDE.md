@@ -71,19 +71,14 @@ from scaffolding, not a second package; there is only one app here.
   environment, not a code bug. Do not "fix" it by ripping out next/font; the
   real offline fix is to self-host the font (`next/font/local`). Do not treat
   the presence of `.next/` as proof the current source builds.
-- `npm run lint` (`eslint`, flat config) — **VERIFIED, ran, exit code 1**
-  (re-confirmed 2026-08-19 after the Next.js 16.2.12 / React 19.2.8
-  safe-updates bump — see the gotcha below on why ESLint stayed pinned to
-  9.x through that bump; the unused `CheckCircle` warning was removed
-  2026-10-02). 2 errors, all in
-  `src/components/dashboard/Dashboard.tsx`:
-  - line 64: `Unexpected any` — `const data = results.data as any[];` inside
-    the PapaParse `complete` callback (`@typescript-eslint/no-explicit-any`)
-  - line 352: `Unexpected any` — the Recharts `<Tooltip formatter={(value:
-    any) => ...}>` on the sentiment pie chart (`@typescript-eslint/no-explicit-any`)
-  These are pre-existing; do not fix them as a side effect of unrelated
-  work — fix them deliberately if asked, since they touch active
-  components.
+- `npm run lint` (`eslint`, flat config) — **VERIFIED, exit 0, 0 problems**
+  (2026-10-29). It exited 1 until then on two `no-explicit-any` errors in
+  `Dashboard.tsx`, fixed deliberately: the CSV parse is now
+  `Papa.parse<Record<string, string>>`, so `results.data` is typed rows with
+  no cast, and the pie `Tooltip` formatter's `value` is inferred from
+  Recharts' own type. Same day: `npx tsc --noEmit` exit 0 (control:
+  `--listFiles` includes `Dashboard.tsx`), and `npm run build` exit 0 with
+  network. See the gotcha below on why ESLint stays pinned to 9.x.
 - **No test suite.** `package.json` has no `test` script and there is no
   test runner (Jest/Vitest/Playwright/etc.) in `devDependencies`. There are
   no `*.test.ts(x)` or `*.spec.ts(x)` files anywhere in `src/`. Testing is
@@ -136,7 +131,7 @@ and `progress` have been generated into `src/components/ui/` so far.
 - 1–39: imports — React `useState`, lucide icons, PapaParse, `analyzeFeedback`/`SentimentAnalysisResult` from `@/lib/analyzer`, shadcn `Card`/`Button`/`Progress`, Recharts primitives (`PieChart`, `BarChart`, etc.), and the `COLORS` map (Positive/Neutral/Negative → hex).
 - 41–47: `Dashboard()` component state — `isDragging`, `file`, `error`, `isAnalyzing`, `results`.
 - 48–56: `handleDragOver` / `handleDragLeave` — drag-and-drop visual state.
-- 58–100: `processFileText(text, filename)` — branches on `.csv` (PapaParse with header row, case-insensitive lookup for a column containing "comment" or "feedback", line 64 is the `any[]` cast flagged by lint) vs `.txt` (split on newlines, trim, filter blanks). Both paths call `analyzeFeedback()` and set `results`.
+- 58–100: `processFileText(text, filename)` — branches on `.csv` (PapaParse with header row, case-insensitive lookup for a column containing "comment" or "feedback"; the parse is typed `Record<string, string>` rows) vs `.txt` (split on newlines, trim, filter blanks). Both paths call `analyzeFeedback()` and set `results`.
 - 102–114: `handleDrop` / `handleFileInput` — wire native drag/drop and `<input type="file">` events into `handleFiles`.
 - 115–142: `handleFiles(files)` — validates extension is `.txt`/`.csv`, sets `file`/`isAnalyzing`, reads the file via `FileReader.readAsText`, then calls `processFileText` in `onload`.
 - 144–148: `reset()` — clears file/results/error to return to the upload screen.
@@ -144,7 +139,7 @@ and `progress` have been generated into `src/components/ui/` so far.
 - 166–419: JSX render, three states gated on `!results && !isAnalyzing` / `isAnalyzing` / `results`:
   - 169–217: upload dropzone card (drag handlers, hidden file input, error banner).
   - 220–234: loading spinner state.
-  - 237–416: results dashboard — 239–261 header (filename + comment count + "Analyze Another" button), 263–323 sentiment breakdown card with three `<Progress>` bars, 325–362 pie chart card (line 352 is the `Tooltip formatter={(value: any) => ...}` flagged by lint), 364–413 top-themes bar chart card.
+  - 237–416: results dashboard — 239–261 header (filename + comment count + "Analyze Another" button), 263–323 sentiment breakdown card with three `<Progress>` bars, 325–362 pie chart card (its `Tooltip` formatter at 352), 364–413 top-themes bar chart card.
 
 No other file in `src/` exceeds ~130 lines (`globals.css` is 128 lines of
 Tailwind/shadcn tokens; every `.tsx`/`.ts` file besides `Dashboard.tsx` is
@@ -167,10 +162,9 @@ under 105 lines).
 4. There is no `requirements.txt` for the Python side at all; `textblob`,
    `nltk`, and `streamlit` are used but never declared. If someone asks you
    to "run the Python analyzer," you cannot assume it works out of the box.
-5. Two pre-existing lint errors (`no-explicit-any`) live in
-   `Dashboard.tsx` — `npm run lint` currently exits 1. Don't assume a red
-   lint run means your own change broke something; check whether it's one
-   of these two first.
+5. `npm run lint` is clean since 2026-10-29 (it carried two
+   `no-explicit-any` errors before that). A red lint run now means something
+   new; don't wave it off as the old pair.
 6. **`eslint-plugin-react` does not support ESLint 10, at any version
    published as of 2026-08-19 (latest is 7.37.5, peer range caps at
    `^9.7`).** `eslint-config-next` bundles its own nested copy of
