@@ -32,7 +32,7 @@ prototype artifact, not as source you need to keep in sync with the app.
 
 ## Stack (exact versions from package.json)
 
-- Next.js **16.3.6** (App Router, Turbopack build)
+- Next.js **16.3.8** (App Router, Turbopack build)
 - React **19.3.0** / React DOM 19.3.0
 - TypeScript **^6.0.3** (`strict: true`)
 - Tailwind CSS **^4** via `@tailwindcss/postcss`
@@ -44,7 +44,7 @@ prototype artifact, not as source you need to keep in sync with the app.
 - `recharts` ^3.10.1 — Pie/Bar charts
 - `next-themes` ^0.4.6 — light/dark mode
 - `lucide-react` ^1.48.0 — icons
-- ESLint **^9.7.0** with `eslint-config-next` 16.3.6 (flat config,
+- ESLint **^9.7.0** with `eslint-config-next` 16.3.8 (flat config,
   `eslint.config.mjs`). **Pinned below 10 deliberately** — see the gotcha
   below.
 
