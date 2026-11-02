@@ -30,21 +30,21 @@ so the two implementations exist in parallel with no shared code and no
 import relationship. Treat the Python files as a design reference /
 prototype artifact, not as source you need to keep in sync with the app.
 
-## Stack (exact versions from package.json)
+## Stack (major.minor here; exact versions are in package.json and package-lock.json)
 
-- Next.js **16.3.8** (App Router, Turbopack build)
-- React **19.3.0** / React DOM 19.3.0
+- Next.js **16.4** (App Router, Turbopack build)
+- React **19.3** / React DOM 19.3
 - TypeScript **^6.0.3** (`strict: true`)
 - Tailwind CSS **^4** via `@tailwindcss/postcss`
 - shadcn/ui (`components.json`, style `base-nova`, baseColor `neutral`) on
-  top of `@base-ui/react` **^1.8.0** primitives, `class-variance-authority`,
+  top of `@base-ui/react` **^1.9** primitives, `class-variance-authority`,
   `tailwind-merge`, `clsx`
 - `sentiment` ^5.0.2 — sentiment scoring engine used by `src/lib/analyzer.ts`
 - `papaparse` ^5.7.0 — CSV parsing in the browser
 - `recharts` ^3.10.1 — Pie/Bar charts
 - `next-themes` ^0.4.6 — light/dark mode
-- `lucide-react` ^1.48.0 — icons
-- ESLint **^9.7.0** with `eslint-config-next` 16.3.8 (flat config,
+- `lucide-react` ^1.63 — icons
+- ESLint **^9.7.0** with `eslint-config-next` 16.4 (flat config,
   `eslint.config.mjs`). **Pinned below 10 deliberately** — see the gotcha
   below.
 
