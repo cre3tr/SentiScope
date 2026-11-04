@@ -243,6 +243,8 @@ under 105 lines).
 
 Read, in this order, before changing anything:
 
+0. `README.md`: status, plus the map of the six-doc set (MISSION, VISION,
+   BACKLOG, SECURITY, ARCHITECTURE). Added 2026-11-04.
 1. `BUILD.md` / `SPEC.md` in this repo — how the project works and what was
    decided. If both exist, they should not disagree; if they do, that is a
    finding.
